@@ -1,0 +1,66 @@
+Informe – Programación Funcional en Haskell
+Juan Diego Parra 
+Juan Diego Martinez
+Jua Daniel Martinez
+
+1. ¿Qué hace el código?
+El programa implementa varias funciones en Haskell relacionadas con programación funcional,
+métodos numéricos y procesamiento de señales.
+Las funciones desarrolladas se dividen en tres grupos principales:
+1) Funciones útiles:
+- remData elimina los datos de una lista que no están dentro de un intervalo definido.
+- orderDesc ordena una lista de números en punto flotante en orden descendente.
+2) Métodos numéricos:
+- pow y factorial implementan la potencia y el factorial de manera recursiva, sin depender de las
+funciones predefinidas de Haskell.
+- expAprox aproxima la función exponencial usando la serie de Taylor y expPctError calcula el error
+porcentual respecto a la función integrada de Haskell.
+- cosAprox y cosPctError hacen lo mismo, pero con la función coseno.
+- ln1pAprox y ln1pPctError aproximan el logaritmo natural de (1+x) y calculan su error.
+3) Procesamiento de señales:
+- dct implementa la Transformada Discreta del Coseno (DCT), una técnica usada en compresión de
+señales e imágenes.
+En el main se incluyen pruebas para verificar que todas estas funciones funcionan correctamente.
+2. ¿Cómo lo hicimos?
+El desarrollo se llevó a cabo en los siguientes pasos:
+1. Definir funciones matemáticas básicas (pow, factorial), necesarias para construir las series de
+Taylor.
+2. Construir funciones de aproximación (expAprox, cosAprox, ln1pAprox) aplicando los desarrollos en
+serie.
+3. Incluir funciones de error porcentual, comparando con los resultados de las funciones integradas de
+Haskell.
+4. Implementar funciones útiles (remData, orderDesc) como primeros ejercicios para practicar listas y
+recursión.
+5. Agregar la DCT, que permitió aplicar conceptos de programación funcional a un problema de
+procesamiento de señales.
+6. Escribir pruebas en main, mostrando los resultados y comparando con los valores esperados.
+3. Errores o problemas y cómo los resolvimos
+1. Confusión con los tipos de datos.
+- Al principio intentamos mezclar Int y Float directamente en operaciones.
+- Ejemplo: en la función pow usamos x * pow x (n-1) sin conversión y eso causaba errores de tipo.
+- Solución: usamos fromIntegral y realToFrac para convertir entre tipos cuando era necesario.
+2. Error de precisión al calcular el logaritmo natural.
+- Al probar ln1pAprox 0.5 5, obtuvimos un valor muy diferente al de log(1.5).
+- Causa: estábamos usando mal el signo en la serie ((-1)^(k+1)).
+- Solución: corregimos la condición con if even k then (-1.0) else 1.0.
+3. Problemas de indentación.
+- En Haskell la indentación es fundamental. Olvidamos alinear correctamente las guardas y las
+cláusulas where.
+- Ejemplo: en cosAprox escribimos mal la indentación de la función auxiliar auxCos, lo que provocaba
+un error de compilación.
+- Solución: revisamos la estructura de sangrías y alineamos cada guarda debajo del patrón
+correspondiente, respetando la regla de Haskell sobre indentación.
+4. Ejemplos de pruebas
+- remData [1, 25, 5, -4] 0 5 -> [1, 5]
+- orderDesc [3.5, 1.2, 7.8, 4.4, 2.0] -> [7.8,4.4,3.5,2.0,1.2]
+- expAprox 1.0 10 -> 2.7182817, expPctError 1.0 10 -> 0.00003%
+- cosAprox 1.5 6 -> 0.0707372, cosPctError 1.5 6 -> 0.002%
+- ln1pAprox 0.5 10 -> 0.4054651, ln1pPctError 0.5 10 -> 0.0001%
+- dct [1.0..10.0] -> [17.3925, -9.0249, 0, -0.9667, 0, -0.3162, 0, -0.1279, 0, -0.0359]
+5. Conclusiones
+- El ejercicio permitió aplicar los conceptos básicos de la programación funcional en Haskell.
+- Aprendimos a trabajar con recursión, listas, tipos de datos y conversiones.
+- Los errores cometidos nos ayudaron a entender mejor cómo manejar tipos, condiciones base y la
+importancia de la indentación en Haskell.
+- La implementación de la DCT mostró que Haskell también puede usarse para problemas prácticos de
+ingeniería como el procesamiento de señales.
