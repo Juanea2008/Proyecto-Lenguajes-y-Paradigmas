@@ -1,84 +1,135 @@
-Práctica 2 - Programación Lógica (Prolog)
+# Práctica 3 — Programación Orientada a Objetos: Regresión Lineal (Java)
+Juan Diego Martinez Jaramillo
 
-Integrantes
-Juan Diego Martinez Jaramilo
 
--Descripción
-Este proyecto resuelve los dos retos planteados en la **Práctica 2 de Programación Lógica**:
 
-1. Reto 1 — Base de Datos de Plataformas Informáticas**
-   - Se creó una base de **50 entradas** (`platform/10`) con:
-     - Marca, serial, año, RAM, CPU, núcleos, disco, tipo, GPU y VRAM.
-   - Se implementaron consultas obligatorias (ej. CPU AMD después de 2021).
-   - Se añadieron 4 consultas complejas adicionales.
-
-2. Reto 2 — Planificador de Viajes**
-   - Se diseñó una base de rutas (`ruta/7`) con medio de transporte, horarios, costo y disponibilidad.
-   - Se implementaron reglas para:
-     - Encontrar rutas directas y con escalas.
-     - Calcular tiempo total y costo.
-     - Seleccionar rutas óptimas por **tiempo** o **costo**.
-     - Filtrar por disponibilidad y rango horario.
-     - Sugerir alternativas si no hay rutas disponibles.
+## Objetivos del trabajo
+1. Aplicar conceptos básicos de POO en Java.  
+2. Implementar de forma manual operaciones matriciales necesarias para regresión lineal (transpuesta, multiplicación, inversión por Gauss-Jordan).  
+3. Implementar entrenamiento por **ecuación normal** y por **gradiente descendente**.  
+4. Proveer funciones para escalado de datos, predicción y evaluación (MSE y R²).  
+5. Documentar el desarrollo, pruebas y conclusiones; entregar código y video.
 
 ---
 
-- Archivos
-- `db_platforms.pl` → Reto 1 (base de datos + consultas).
-- `travel_planner.pl` → Reto 2 (planificador de viajes).
-- `README.md` → este documento.
+## Instrucciones para compilar y ejecutar (entorno local)
+1. Copia los archivos `.java` y los CSV al mismo directorio.  
+2. Abre una terminal en ese directorio y ejecuta:
+```bash
+javac LinearRegression.java SimpleRegressionExample.java MultipleRegressionExample.java
+```
+3. Ejecuta los ejemplos:
+```bash
+java SimpleRegressionExample
+java MultipleRegressionExample
+```
+4. Salida esperada: impresión en consola de pesos, bias, MSE, R² y predicciones de ejemplo.
+
+---
+
+## Estructura del proyecto y descripción de archivos
+- `LinearRegression.java` — Implementa:
+  - Atributos: `double[] weights`, `double bias`, `double[] featureMeans`, `double[] featureStds` y bandera `scaled`.
+  - Métodos de entrenamiento:
+    - `trainWithNormalEquation(double[][] X, double[] y, boolean addIntercept)` — resuelve θ = (X^T X)^{-1} X^T y.
+    - `trainWithGradientDescent(double[][] X, double[] y, double lr, int epochs)` — descenso de gradiente por lotes (batch).
+  - Predicción: `predict(double[][] X)`.
+  - Métricas: `meanSquaredError(double[] yTrue, double[] yPred)`, `r2Score(double[] yTrue, double[] yPred)`.
+  - Escalado: `scaleData(double[][] X)` — estandarización (z-score).
+  - Helpers: operaciones matriciales simples y un método de inversión por Gauss-Jordan.
+
+- `SimpleRegressionExample.java`
+  - Lee `Ice_cream_selling_data.csv` (columnas: `Temperature (°C)`, `Ice Cream Sales (units)`).
+  - Construye X (una característica) y y; llama a `trainWithNormalEquation(..., addIntercept=true)`.
+  - Imprime pesos (coeficiente), bias (intercept), MSE, R² y predicciones de ejemplo.
+
+- `MultipleRegressionExample.java`
+  - Lee `student_exam_scores.csv` (columnas: `hours_studied`, `sleep_hours`, `attendance_percent`, `previous_scores`, `exam_score`).
+  - Escala las características con `scaleData(...)` y entrena con `trainWithNormalEquation(..., addIntercept=false)` (porque se trabaja sobre X ya escalada).
+  - Imprime pesos, bias, MSE, R² y predicciones sobre ejemplos nuevos (escalando previamente dichos ejemplos).
+
+---
+
+## Datasets (resumen)
+### Ice_cream_selling_data.csv
+- Filas: 49, columnas: 2.  
+- Columnas: `Temperature (°C)`, `Ice Cream Sales (units)`.
+
+### student_exam_scores.csv
+- Filas: 200, columnas: 5.  
+- Columnas: `hours_studied`, `sleep_hours`, `attendance_percent`, `previous_scores`, `exam_score`.
+
+---
+
+## Resultados de las pruebas (ejecución en nuestros datos)
+> Estos resultados se obtuvieron ejecutando los ejemplos provistos contra los CSV cargados en el repositorio.
+
+### Regresión lineal simple (Ice cream)
+- Coeficiente (slope): **-0.7964571107**  
+- Bias (intercept): **16.1217493920**  
+- MSE (entrenamiento): **142.8304**  
+- R²: **0.03069**  
+- Predicciones de ejemplo:
+  - A 18 °C → **≈ 1.79 unidades**  
+  - A 30 °C → **≈ -7.77 unidades** (predicción negativa, indica mal ajuste fuera del rango)
+
+**Interpretación:** R² muy bajo => la temperatura por sí sola no explica bien la variación de ventas en este dataset (posible no-linealidad o ruido).
+
+### Regresión lineal multiple (Student exam)
+Características: `hours_studied`, `sleep_hours`, `attendance_percent`, `previous_scores`
+- Coeficientes (aprox):
+  - `hours_studied`: **1.55526**  
+  - `sleep_hours`: **0.95226**  
+  - `attendance_percent`: **0.10839**  
+  - `previous_scores`: **0.17728**
+- Bias (intercept): **-2.14209**  
+- MSE: **7.27348**  
+- R²: **0.84142**  
+- Predicciones de ejemplo:
+  - Student A (5 hrs, 7 sleep, 90% asistencia, 75 prev): **≈ 35.35**
+  - Student B (2 hrs, 6 sleep, 60% asistencia, 50 prev): **≈ 22.05**
+
+**Interpretación:** R² ≈ 0.84 indica que el modelo múltiple explica bien la variabilidad del puntaje con estas variables.
+
+---
+
+## Pruebas realizadas (test cases)
+1. **Reproducción de resultados**: ejecutar los dos ejemplos y verificar que los valores impresos coincidan con los números en la sección anterior.  
+2. **Predicción fuera de la muestra**: probar predicciones con temperaturas >= 0 y <= 40 para observar comportamiento del modelo simple.  
+3. **Consistencia del escalado**: escalar datos de entrenamiento y luego escalar datos de prueba con las mismas medias/desv estándar; verificar que el proceso no distorsione resultados.  
+4. **Robustez de la inversión**: probar con matrices casi singulares (por ejemplo duplicando una columna) y verificar que la función de inversión lanza excepción controlada.  
+5. **Gradient Descent**: probar `trainWithGradientDescent` con distintos `lr` y `epochs` y comparar convergencia con la solución de la ecuación normal.
+
+---
+
+## Problemas encontrados y soluciones
+1. **Inversión de matrices singular**:  
+   - Problema: si X^T X es singular (colinealidad perfecta o variables dependientes), la inversión falla.  
+   - Solución aplicada: Gauss-Jordan con intercambio de filas para manejar pivotes nulos. Si la matriz sigue siendo singular, la implementación lanza una excepción con mensaje claro – sugerimos remover/regularizar variables o usar descenso por gradiente.  
+
+2. **Escala de variables**:  
+   - Problema: gradiente descendente converge muy lentamente si las características están en escalas diferentes.  
+   - Solución: añadí `scaleData()` que realiza estandarización (z-score). Se recomienda usarlo antes de `trainWithGradientDescent`.  
+
+3. **Predicciones fuera de rango (valores negativas)**:  
+   - Problema: con regresión lineal simple se obtienen predicciones negativas (p. ej. ventas negativas).  
+   - Solución/Observación: esto indica que el modelo lineal simple no es apropiado para extrapolaciones; sugerimos transformar variables, usar regresión no-lineal o imponer restricciones si se requiere.  
+
+---
+
+## Limitaciones y mejoras posibles
+- La implementación de álgebra lineal es básica y no está optimizada (no usa BLAS o librerías numéricas). Para datasets grandes será lenta.  
+- Falta manejo numérico avanzado (regularización ridge/lasso, detección automática de singularidad con pseudo-inversa).  
+- Sugerencia: agregar validación cruzada, selección de features y evaluación sobre conjunto de test separado.
+
+---
 
 
-
- 1. Cargar la base de datos
-```prolog
-?- [db_platforms].
-
-
-2. Consultas de ejemplo (Reto 1)
-?- amd_after_2021(L).              % Plataformas AMD adquiridas después de 2021
-?- tablets_more_than_2gb(T).       % Tablets con más de 2GB de RAM
-?- hdd_between_32_512(H).          % Discos entre 32GB y 512GB
-?- count_asus(N).                  % Número de equipos ASUS
-?- count_laptops_ram_hdd(M).       % Laptops con RAM>4 y HDD<512
-?- top_n_by_vram(5, Top5).         % Top 5 equipos con mayor VRAM
+## Conclusiones 
+1. **POO y claridad**: La orientación a objetos permitió encapsular toda la lógica de la regresión en una clase reusables y fácil de testear.  
+2. **Método apropiado según datos**: La ecuación normal es práctica y exacta para datasets pequeños/medianos, mientras que el gradiente descendente es útil cuando la inversión no es posible o el dataset es grande.  
+3. **Importancia del escalado**: Estandarizar características mejora la estabilidad y la convergencia del entrenamiento iterativo; además evita dominancia numérica de features de mayor magnitud.  
 
 
-3. Cargar el planificador
-?- [travel_planner].
+ 
 
-
-4. Consultas de ejemplo (Reto 2)
-?- find_all_routes(bogota, medellin, R).
-?- best_route(bogota, medellin, criterio(time), Best).
-?- best_route(bogota, medellin, criterio(cost), Best).
-?- find_all_routes(bogota, cartagena, All), only_available(All, Avail).
-?- suggest_alternatives(bogota, bucaramanga, Alt).
-
-
--Pruebas sugeridas
-  -Consultar todas las plataformas con VRAM ≥ 8 GB.
-  -Buscar ruta Bogotá → Santa Marta optimizada por costo.
-  -Filtrar rutas Bogotá → Medellín que salgan entre 6 y 12.
-
-
--Conclusiones
-  -Prolog permite modelar bases de conocimiento declarativas sin necesidad de ciclos explícitos de control.
-  -El uso de hechos y reglas facilita la definición de consultas complejas en pocas líneas.
-  -Los retos muestran cómo Prolog puede aplicarse tanto en bases de datos como en sistemas expertos de planificación.
-
-
--Video
-  -Duración: máximo 10 minutos.
-  -Mostrar:
-  -Introducción del equipo y objetivos.
-  -Explicación de la base de datos (db_platforms.pl).
-  -Ejecución de consultas obligatorias y adicionales.
-  -Explicación del planificador de viajes (travel_planner.pl).
-  -Ejecución de consultas de rutas.
-
-
-
-
- Enlace YouTube: 
- Enlace Repositorio: https://github.com/Juanea2008/Proyecto-Lenguajes-y-Paradigmas.git
